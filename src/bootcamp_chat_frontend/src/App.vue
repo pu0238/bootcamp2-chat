@@ -45,7 +45,7 @@ export default {
     <img src="/logo2.svg" alt="DFINITY logo" />
     <br />
     <br />
-    {{ identity?.getPrincipal() }}
+    {{ identity?.getPrincipal() }} <button @click="login">login</button>
     <div>
       {{ notes }}
     </div>

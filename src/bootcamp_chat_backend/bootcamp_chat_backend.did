@@ -1,3 +1,4 @@
 service : {
-    "greet": (text) -> (text) query;
+    "get_notes": () -> (vec text) query;
+    "add_note": (text) -> ();
 }

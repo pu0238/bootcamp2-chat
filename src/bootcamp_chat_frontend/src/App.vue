@@ -9,30 +9,40 @@ import { Principal } from '@dfinity/principal';
 export default {
   data() {
     return {
-      newNote: "",
-      notes: [] as string[][],
+      newChat: "",
+      chats: [] as string[][],
       identity: undefined as undefined | Identity,
       principalText: "",
+      targetPrincipal: "",
     }
   },
   methods: {
-    async dodajNotatke() {
+    async dodajChatMSG() {
       if (!this.identity || this.identity.getPrincipal() === Principal.anonymous()) {
         throw new Error("PLZ log in")
       }
+      const targetPrincipal = Principal.fromText(this.targetPrincipal)
+      if (!targetPrincipal || targetPrincipal === Principal.anonymous()){
+        throw new Error("Wrong target")
+      }
+
       const backend = createActor(canisterId, {
         agentOptions: {
           identity: this.identity
         }
       });
-      await backend.add_note(this.newNote)
-      await this.pobierzNotatki()
+      await backend.add_chat_msg(this.newChat, targetPrincipal)
+      await this.pobierzChaty()
     },
-    async pobierzNotatki() {
+    async pobierzChaty() {
       if (!this.identity || this.identity.getPrincipal() === Principal.anonymous()) {
         throw new Error("PLZ log in")
       }
-      this.notes = await bootcamp_chat_backend.get_notes(this.identity.getPrincipal())
+      const targetPrincipal = Principal.fromText(this.targetPrincipal)
+      if (!targetPrincipal || targetPrincipal === Principal.anonymous()){
+        throw new Error("Wrong target")
+      }
+      this.chats = await bootcamp_chat_backend.get_chat(this.identity.getPrincipal(), targetPrincipal)
     },
     async login() {
       const authClient = await AuthClient.create();
@@ -44,7 +54,7 @@ export default {
       this.principalText = identity.getPrincipal().toText()
       console.log("Zalogowano", this.principalText)
       this.identity = identity;
-      await this.pobierzNotatki()
+      await this.pobierzChaty()
     }
   },
 }
@@ -57,12 +67,15 @@ export default {
     <br />
     {{ principalText }} <button @click="login">login</button>
     <div>
-      <div v-for="note in notes[0]">
-        {{ note }}
+      <input v-model="targetPrincipal" />
+    </div>
+    <div>
+      <div v-for="chat in chats[0]">
+        {{ chat }}
       </div>
     </div>
     <div>
-      <textarea v-model="newNote"></textarea><button @click="dodajNotatke">Dodaj notatke</button>
+      <textarea v-model="newChat"></textarea><button @click="dodajChatMSG">Dodaj notatke</button>
     </div>
   </main>
 </template>

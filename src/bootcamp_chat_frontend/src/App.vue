@@ -67,7 +67,7 @@ export default {
     <br />
     {{ principalText }} <button @click="login">login</button>
     <div>
-      <input v-model="targetPrincipal" />
+      <input v-model="targetPrincipal" /><button @click="pobierzChaty">pobierz chat</button>
     </div>
     <div>
       <div v-for="chat in chats[0]">

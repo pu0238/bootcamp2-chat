@@ -26,27 +26,34 @@ export default {
         principal: this.principal 
       }
     },
-    async dodajChatMSG() {
-      this.isUserLogged()
-      const targetPrincipal = Principal.fromText(this.targetPrincipal)
+    validateTargetPrincipal(){
+      const cleanTargetPrincipal = this.targetPrincipal.trim();
+      if (cleanTargetPrincipal === ""){
+        throw new Error("No principal")
+      }
+      const targetPrincipal = Principal.fromText(cleanTargetPrincipal)
       if (!targetPrincipal || targetPrincipal === Principal.anonymous()){
         throw new Error("Wrong target")
       }
-
-      const backend = createActor(canisterId, {
+      return targetPrincipal
+    },
+    getAuthClient(){
+      this.isUserLogged()
+      return createActor(canisterId, {
         agentOptions: {
           identity: this.identity
         }
       });
+    },
+    async dodajChatMSG() {
+      const targetPrincipal = this.validateTargetPrincipal()
+      const backend = this.getAuthClient();
       await backend.add_chat_msg(this.newChat, targetPrincipal)
       await this.pobierzChaty()
     },
     async pobierzChaty() {
       const {identity, principal} = this.isUserLogged()
-      const targetPrincipal = Principal.fromText(this.targetPrincipal)
-      if (!targetPrincipal || targetPrincipal === Principal.anonymous()){
-        throw new Error("Wrong target")
-      }
+      const targetPrincipal = this.validateTargetPrincipal()
 
       const chatPath = [identity.getPrincipal(), targetPrincipal]
       chatPath.sort()

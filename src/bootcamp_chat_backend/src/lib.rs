@@ -21,7 +21,7 @@ fn add_chat_msg(msg: String, user2: Principal) {
         panic!("Anonymous Principal!")
     }
 
-    let principals = [user1, user2];
+    let mut principals = [user1, user2];
     principals.sort();
 
 

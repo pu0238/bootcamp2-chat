@@ -67,7 +67,6 @@ export default {
           this.principal = identity.getPrincipal();
           this.identity = identity;
           console.log("Zalogowano", this.principal)
-          await this.pobierzChaty()
         }
       })
     }

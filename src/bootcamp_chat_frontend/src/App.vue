@@ -16,7 +16,8 @@ export default {
       principal: undefined as undefined | Principal,
       targetPrincipal: "",
       userData: undefined as undefined | UserData,
-      newUsername: ""
+      newUsername: "",
+      allUsers: [] as [Principal, UserData][]
     }
   },
   methods: {
@@ -72,6 +73,7 @@ export default {
           this.identity = identity;
           console.log("Zalogowano", this.principal)
           await this.getUserData()
+          await this.getAllUsers()
         }
       })
     },
@@ -88,6 +90,7 @@ export default {
       const backend = this.getAuthClient();
       await backend.register(trimedUsername)
       await this.getUserData()
+      await this.getAllUsers()
     },
     async getUserData() {
       const {principal} = this.isUserLogged()
@@ -98,6 +101,9 @@ export default {
         this.userData = maybeUserData[0]
       }
       console.log("User data", this.userData)
+    },
+    async getAllUsers(){
+      this.allUsers = await bootcamp_chat_backend.get_users()
     }
   },
 }
@@ -105,15 +111,18 @@ export default {
 
 <template>
   <main>
-    {{ principal }} 
     <button v-if="!principal" @click="login">login</button>
     <button v-if="principal" @click="logout">logout</button>
     <div v-if="principal && !userData">
-      <input v-model="newUsername" /> <button @click="registerUsername"></button>
+      <input v-model="newUsername" placeholder="nick"/> <button @click="registerUsername">register</button>
     </div>
     <div v-if="principal && userData">
-      <div>
-        <input v-model="targetPrincipal" /><button @click="pobierzChaty">pobierz chat</button>
+      {{ userData.nickname }}
+      <div v-if="allUsers">
+        <select v-model="targetPrincipal">
+          <option disabled value="">Please select one</option>
+          <option v-for="[userPrincipal, userData] in allUsers" :value="userPrincipal.toText()">{{ userData.nickname }}</option>
+        </select>
       </div>
       <div>
         <div v-for="chat in chats[0]">
@@ -121,7 +130,7 @@ export default {
         </div>
       </div>
       <div>
-        <textarea v-model="newChat"></textarea><button @click="dodajChatMSG">Dodaj notatke</button>
+        <textarea v-model="newChat" placeholder="wiadomosc"></textarea><button @click="dodajChatMSG">Dodaj notatke</button>
       </div>
     </div>
   </main>
